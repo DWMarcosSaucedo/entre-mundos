@@ -1,38 +1,83 @@
 # Entre mundos
 
-SPA mobile-first para conversar con tres personajes mediante Google Gemini. Incluye rutas `/home`, `/chat` y `/about`, historial independiente por personaje en localStorage, tema claro/oscuro, copiar respuestas, timestamps, indicador de escritura y pruebas unitarias.
-
-## Ejecutar
-
-Requiere Node.js 20+, npm, Vercel CLI y una clave de Google AI Studio.
+Aplicación web para conversar con personajes mediante Google Gemini. Permite elegir entre Sherlock Holmes, Luna Valen y Morgana. Tiene navegación entre Inicio, Chat y Acerca de, diseño adaptable a celular y computadora, e historial independiente para cada personaje.
 
 ## Personajes
 
 - **Sherlock Holmes:** detective consultor observador, ingenioso y conciso.
-- **Luna Valen:** astrónoma ficticia cálida y curiosa; distingue ciencia de ficción.
-- **Morgana:** hechicera del bosque con humor sutil; distingue fantasía de hechos reales.
+- **Luna Valen:** astrónoma ficticia, cálida y curiosa; distingue la ciencia de la ficción.
+- **Morgana:** hechicera del bosque con humor sutil; distingue la fantasía de los hechos reales.
 
-Cada uno tiene instrucciones propias en `src/characters.js`.
+Cada personaje tiene instrucciones de personalidad propias en `src/characters.js`.
 
-1. Ejecutá `npm install` y, si no tenés la CLI, `npm install -g vercel`.
-2. Copiá `.env.example` a `.env.local` y completá `GEMINI_API_KEY`. El nombre del modelo puede cambiarse con `GEMINI_MODEL`.
-3. Ejecutá `vercel dev` desde la raíz (puede pedir iniciar sesión en Vercel). Abrí la URL local que indique la terminal. La función `/api/chat` requiere el servidor de Vercel; abrir `index.html` como archivo no sirve para el chat.
-4. Ejecutá `npm test` para las cinco pruebas unitarias con Vitest.
+## Aplicación publicada y repositorio
 
-## Despliegue en Vercel
+- **Aplicación:** https://entre-mundos-six.vercel.app
+- **Repositorio:** https://github.com/DWMarcosSaucedo/entre-mundos
 
-Importá este repositorio en Vercel con preset **Other**, directorio raíz del proyecto, sin comando de build y sin directorio de salida. Configurá `GEMINI_API_KEY` como variable de entorno del proyecto (y, opcionalmente, `GEMINI_MODEL`). Desplegá y probá `/home`, `/chat`, `/about`, recargar en cada ruta, y una pregunta real en `/chat`. Nunca agregues `.env.local` al repositorio.
+## Capturas de pantalla
 
-## Enlaces y capturas
+### Inicio
 
-- Repositorio de GitHub: pendiente de publicar desde una cuenta conectada.
-- Aplicación pública en Vercel: pendiente de desplegar y configurar `GEMINI_API_KEY`.
-- Capturas reales: pendientes de generar tras el despliegue y de probar una conversación con la clave configurada. No se incluyen capturas simuladas como evidencia de funcionamiento.
+![Página de inicio de Entre mundos](screenshots/home.png)
 
-## Diseño y funcionamiento
+### Chat funcionando
 
-La History API permite navegar sin recarga y usar atrás/adelante. `vercel.json` sirve `index.html` en las tres rutas. Cada petición manda al servidor el personaje seleccionado y hasta 24 turnos recientes; el servidor valida esos datos, añade el prompt del personaje y llama a Gemini con la clave privada. El historial se guarda en este navegador hasta usar «Borrar chat»; se envía a Gemini al conversar. El diseño contempla móvil (375 px), tablet (768 px) y escritorio (1440 px).
+![Conversación con Sherlock Holmes](screenshots/chat.png)
 
-## Uso de IA en el desarrollo
+## Ejecutar localmente
 
-Este proyecto se implementó con asistencia de ChatGPT para estructura, estilos, lógica y pruebas. Revisar el código y probar el servicio real con una clave propia antes de entregar.
+Se necesita Node.js 20 o posterior, npm, una clave de Gemini obtenida en Google AI Studio y Vercel CLI.
+
+1. Instalá las dependencias:
+
+   ```bash
+   npm ci
+   ```
+
+2. Instalá Vercel CLI si no la tenés:
+
+   ```bash
+   npm install -g vercel
+   ```
+
+3. Copiá `.env.example` como `.env.local`. En `.env.local`, reemplazá el valor de `GEMINI_API_KEY` por tu clave real. Ese archivo no se debe subir a GitHub.
+
+4. Iniciá la aplicación:
+
+   ```bash
+   vercel dev
+   ```
+
+5. Abrí la dirección local que muestre la terminal. Para probar el chat necesitás ejecutar `vercel dev`, ya que la petición pasa por la función `api/chat.js`.
+
+La clave de Gemini se usa únicamente en la función de Vercel y no se envía al código del navegador. El modelo configurado es `gemini-3.8-flash`.
+
+## Tests
+
+Para ejecutar las pruebas unitarias:
+
+```bash
+npm test
+```
+
+Se verificó la ejecución local de **5 tests con Vitest**: personajes y prompts, validación del historial, solicitudes inválidas, envío de contexto a Gemini sin exponer la clave y manejo de errores de la API.
+
+## Desplegar en Vercel
+
+1. Importá el repositorio de GitHub como un proyecto nuevo en Vercel.
+2. Configurá `GEMINI_API_KEY` en **Settings → Environment Variables** para **Production**.
+3. Desplegá la rama `main`. Si modificás una variable de entorno, creá un deployment nuevo para aplicar el cambio.
+4. Visitá `/home`, `/chat` y `/about`, y enviá un mensaje en el chat para comprobar que responde Gemini.
+
+`GEMINI_MODEL` es opcional. Si no se configura, la función utiliza `gemini-3.8-flash`.
+
+## Funcionamiento
+
+La navegación utiliza la History API, por lo que cambia de vista sin recargar la página y funcionan los botones de atrás y adelante. El historial se guarda en `localStorage` por personaje y puede eliminarse con «Borrar chat».
+
+Al enviar un mensaje, `api/chat.js` valida la conversación, añade las instrucciones del personaje y consulta Gemini desde el servidor. La interfaz muestra el estado de escritura, los errores y las respuestas recibidas.
+
+## Uso de IA durante el desarrollo
+
+Utilicé ChatGPT como apoyo para crear la estructura inicial del proyecto, los estilos, la lógica del chat, la función de Vercel y las pruebas. Después configuré el repositorio y el despliegue, instalé las dependencias, ejecuté los tests y probé el chat publicado. Durante la puesta en marcha revisé los registros de Vercel y actualicé el modelo de Gemini al detectar que el anterior ya no estaba disponible para mi cuenta.
