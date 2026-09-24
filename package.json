@@ -1,0 +1,16 @@
+{
+  "name": "conversaciones-imposibles",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "dev": "vercel dev"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "vitest": "^5.0.1"
+  }
+}
