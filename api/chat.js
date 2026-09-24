@@ -27,7 +27,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+    const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 25000);
 
@@ -49,8 +49,10 @@ export default async function handler(req, res) {
             },
             contents: geminiContents(messages),
             generationConfig: {
-              maxOutputTokens: 350,
-              temperature: 0.85
+              maxOutputTokens: 1024,
+              thinkingConfig: {
+                thinkingLevel: 'low'
+              }
             }
           })
         }
@@ -68,7 +70,6 @@ export default async function handler(req, res) {
         data.error?.status ||
         'unknown';
 
-      // La clave se oculta antes de escribir el detalle en los logs.
       const detail = String(data.error?.message || '')
         .replaceAll(process.env.GEMINI_API_KEY, '[CLAVE OCULTA]')
         .slice(0, 500);
