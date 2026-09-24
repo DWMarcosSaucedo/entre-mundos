@@ -1,8 +1,4 @@
-import {
-  characters,
-  validHistory,
-  geminiContents
-} from '../src/characters.js';
+import { characters, validHistory, geminiContents } from '../src/characters.js';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -66,21 +62,33 @@ export default async function handler(req, res) {
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
+      const reason =
+        data.error?.details
+          ?.flatMap(detail => detail.reason ? [detail.reason] : [])?.[0] ||
+        data.error?.status ||
+        'unknown';
+
+      // La clave se oculta antes de escribir el detalle en los logs.
+      const detail = String(data.error?.message || '')
+        .replaceAll(process.env.GEMINI_API_KEY, '[CLAVE OCULTA]')
+        .slice(0, 500);
+
+      console.error('Gemini API error', {
+        status: response.status,
+        reason,
+        detail
+      });
+
       const error =
         response.status === 429
           ? 'Se alcanzó el límite de uso de Gemini. Probá más tarde.'
           : [400, 401].includes(response.status)
             ? 'Gemini rechazó la solicitud. Revisá la clave y el modelo configurados.'
             : response.status === 403
-              ? 'Gemini rechazó el acceso. Revisá los permisos o la facturación del proyecto de Google.'
+              ? 'Gemini rechazó el acceso. Revisá los permisos del proyecto de Google.'
               : response.status === 404
                 ? 'Gemini no encontró el modelo configurado. Revisá GEMINI_MODEL.'
                 : `Gemini no pudo responder (código ${response.status}). Intentá otra vez.`;
-
-      console.error('Gemini API error', {
-        status: response.status,
-        reason: data.error?.status || 'unknown'
-      });
 
       return res.status(502).json({ error });
     }
